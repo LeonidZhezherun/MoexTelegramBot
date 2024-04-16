@@ -71,7 +71,8 @@ def menu_text(message):
             """
             table = cur.execute(sql, (id,))
             header_rus = ['Код', 'Акция', 'Кол-во']
-            text = tabulate(table, tablefmt='simple', headers=header_rus)
+            text = tabulate(table, tablefmt='plain', headers=header_rus, stralign=alignments)
+#            table = tabulate(values, headers="firstrow", tablefmt="simple", stralign=alignments)
 
 #            for i in cur.fetchall():
 #                text += i[1].ljust(13 - len(str(i[1]))) + \
@@ -92,16 +93,20 @@ def menu_text(message):
             sql = """
             SELECT code, stock, number, quote, value FROM portfolio WHERE id = ? ORDER BY value DESC
             """
-            table = cur.execute(sql, (id,))
+            cur.execute(sql, (id,))
+            table = cur.fetchall()
             header_rus = ['Код', 'Акция', 'Кол-во', 'Кот-ка', 'Ст-сть']
             text = tabulate(table, tablefmt='simple', headers=header_rus)
+#            alignments = ['left', 'right'] * len(values[0])
+#            text = tabulate(table, tablefmt='plain', headers=header_rus, stralign=alignments)
             bot.send_message(message.chat.id, text)
 
             sql = """
             SELECT SUM(value) FROM portfolio WHERE id = ?
             """
-            total = cur.execute(sql, (id,))
-            text = f'Общая стоимость портфеля: {total} руб'
+            cur.execute(sql, (id,))
+            total = cur.fetchall()
+            text = f'Общая стоимость портфеля: {total[0][0]} руб'
             bot.send_message(message.chat.id, text)
 
 #            text = 'Код       Кол-во      Котировка     Стоимость\n'
