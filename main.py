@@ -90,7 +90,7 @@ def menu_text(message):
                 cur.execute(sql, (last_price_stock(i[1]), round(last_price_stock(i[1]) * i[3], 2), i[0], i[1]))
                 db.commit()
             sql = """
-            SELECT (code, stock, number, quote, value) FROM portfolio WHERE id = ? ORDER BY value DESC
+            SELECT code, stock, number, quote, value FROM portfolio WHERE id = ? ORDER BY value DESC
             """
             table = cur.execute(sql, (id,))
             header_rus = ['Код', 'Акция', 'Кол-во', 'Кот-ка', 'Ст-сть']
