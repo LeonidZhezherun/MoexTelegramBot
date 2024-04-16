@@ -65,18 +65,18 @@ def menu_text(message):
             bot.send_message(message.chat.id, f'{message.from_user.first_name}, извините, нет доступа '
                                                     f'к серверу биржи, котировки и стоимость сейчас показать не согу, '
                                                     f'поробуйте, пожалуйста, позже')
- #           text = 'Код       Кол-во \n'
+
             sql = """
             SELECT code, stock, number FROM portfolio WHERE id = ?
             """
             table = cur.execute(sql, (id,))
-            header_rus = ['Код', 'Акция', 'Кол-во']
-            text = tabulate(table, tablefmt='plain', headers=header_rus, stralign=alignments)
+#            header_rus = ['Код', 'Акция', 'Кол-во']
+#            text = tabulate(table, tablefmt='plain', headers=header_rus, stralign=alignments)
 #            table = tabulate(values, headers="firstrow", tablefmt="simple", stralign=alignments)
-
-#            for i in cur.fetchall():
-#                text += i[1].ljust(13 - len(str(i[1]))) + \
-#                    str(i[3]).ljust(17 - len(str(i[3]))) + '\n'
+            text = 'Код       Кол-во \n'
+            for i in cur.fetchall():
+                text += i[1].ljust(13 - len(str(i[1]))) + \
+                    str(i[3]).ljust(17 - len(str(i[3]))) + '\n'
 
             bot.send_message(message.chat.id, text)
         else:
@@ -90,15 +90,29 @@ def menu_text(message):
                 """
                 cur.execute(sql, (last_price_stock(i[1]), round(last_price_stock(i[1]) * i[3], 2), i[0], i[1]))
                 db.commit()
+#            sql = """
+#            SELECT code, stock, number, quote, value FROM portfolio WHERE id = ? ORDER BY value DESC
+#            """
+#            cur.execute(sql, (id,))
+#            table = cur.fetchall()
+#            header_rus = ['Код', 'Акция', 'Кол-во', 'Кот-ка', 'Ст-сть']
+#            text = tabulate(table, tablefmt='plain', headers=header_rus)
+#            alignments = ['code', 'stock', 'number', 'quote', 'value'] * 5
+#            text = tabulate(table, tablefmt='plain', headers=header_rus, stralign=alignments)
+#            bot.send_message(message.chat.id, text)
+
+            text = 'Код       Кол-во       Котировка     Стоимость\n'
+            db = sqlite3.connect('moex_bot.sql')
+            cur = db.cursor()
             sql = """
-            SELECT code, stock, number, quote, value FROM portfolio WHERE id = ? ORDER BY value DESC
+            SELECT * FROM portfolio WHERE id = ? ORDER BY code
             """
             cur.execute(sql, (id,))
-            table = cur.fetchall()
-            header_rus = ['Код', 'Акция', 'Кол-во', 'Кот-ка', 'Ст-сть']
-            text = tabulate(table, tablefmt='simple', headers=header_rus)
-#            alignments = ['left', 'right'] * len(values[0])
-#            text = tabulate(table, tablefmt='plain', headers=header_rus, stralign=alignments)
+            for i in cur.fetchall():
+                text += i[1].ljust(13 - len(str(i[1]))) + \
+                    str(i[3]).ljust(17 - len(str(i[3]))) + \
+                    str(i[4]).ljust(26 - len(str(i[4]))) + \
+                    str(i[5]).ljust(40 - len(str(i[5]))) + '\n'
             bot.send_message(message.chat.id, text)
 
             sql = """
@@ -108,23 +122,6 @@ def menu_text(message):
             total = cur.fetchall()
             text = f'Общая стоимость портфеля: {total[0][0]} руб'
             bot.send_message(message.chat.id, text)
-
-#            text = 'Код       Кол-во      Котировка     Стоимость\n'
-#            total = 0
-#            db = sqlite3.connect('moex_bot.sql')
-#            cur = db.cursor()
-#            sql = """
-#            SELECT * FROM portfolio WHERE id = ? ORDER BY code
-#            """
-#            cur.execute(sql, (id,))
-#            for i in cur.fetchall():
-#                total += last_price_stock(i[1]) * i[3]
-#                text += i[1].ljust(13 - len(str(i[1]))) + \
-#                    str(i[3]).ljust(17 - len(str(i[3]))) + \
-#                    str(last_price_stock(i[1])).ljust(26 - len(str(last_price_stock(i[1])))) + \
-#                    str(round(last_price_stock(i[1]) * i[3], 2)).ljust(40 - len(str(round(last_price_stock(i[1]) * i[3], 2)))) + '\n'
-#            text += '\n' + f'Общая стоимость портфеля: {total} руб'
-#            bot.send_message(message.chat.id, text)
         cur.close()
         db.close()
         main_menu(message)
@@ -155,6 +152,9 @@ def change_portfolio(message):
 
 @bot.message_handler(content_types=["text"])
 def change_portfolio_text(message):
+    """
+    Обрабатывает кнопки (сообщения) меню 'Изменить портфель'
+    """
     if message.text == 'Купил акции, добваить в портфель':
         bot.send_message(message.chat.id, 'Введите через пробел код акции и купленное количество, например: SBER 200')
         bot.register_next_step_handler(message, stock_buy_add)
@@ -290,6 +290,9 @@ def stock_sell_delete(message):
 
 @bot.message_handler(content_types=["text"])
 def delete_portfolio_text(message):
+    """
+    Обрабатывает кнопки (сообщения) меню 'Удалить портфель'
+    """
     if message.text == 'Да, удалить':
         id = message.chat.id
         db = sqlite3.connect('moex_bot.sql')
