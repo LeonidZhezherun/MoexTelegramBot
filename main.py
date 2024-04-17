@@ -75,8 +75,8 @@ def menu_text(message):
 #            table = tabulate(values, headers="firstrow", tablefmt="simple", stralign=alignments)
             text = 'Код       Кол-во \n'
             for i in cur.fetchall():
-                text += i[1].ljust(13 - len(str(i[1]))) + \
-                    str(i[3]).ljust(17 - len(str(i[3]))) + '\n'
+                text += i[0].ljust(13 - len(str(i[0]))) + \
+                    str(i[2]).ljust(17 - len(str(i[2]))) + '\n'
 
             bot.send_message(message.chat.id, text)
         else:
