@@ -120,7 +120,7 @@ def menu_text(message):
             """
             cur.execute(sql, (id,))
             total = cur.fetchall()
-            text = f'Общая стоимость портфеля: {total[0][0]} руб'
+            text = f'Общая стоимость портфеля: {round(total[0][0], 2)} руб'
             bot.send_message(message.chat.id, text)
         cur.close()
         db.close()
