@@ -128,7 +128,6 @@ def menu_text(message):
     elif message.text == 'Изменить портфель':
         change_portfolio(message)
 
-
 def last_price_stock(code):
     """
     Принимает на вход код акции, находит в цикле соответсвующиую котировку и возвращает ее
@@ -137,13 +136,14 @@ def last_price_stock(code):
         quotes_csv_tabl = quotes_csv_line.split(';')
         if quotes_csv_tabl[0] == code:
             return float(quotes_csv_tabl[1])
+
 def change_portfolio(message):
     """
     Выводит меню "изменить портфель"
     """
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-    add_to_portfolio = types.KeyboardButton('Купил акции, добваить в портфель')
-    delete_from_portfolio = types.KeyboardButton('Продал акции, удалить из портфеля')
+    add_to_portfolio = types.KeyboardButton('Куплены акции, добваить в портфель')
+    delete_from_portfolio = types.KeyboardButton('Проданы акции, удалить из портфеля')
     delete_portfolio = types.KeyboardButton('Удалить портфель')
     back = types.KeyboardButton('Назад')
     markup.add(add_to_portfolio, delete_from_portfolio, delete_portfolio, back)
@@ -155,10 +155,10 @@ def change_portfolio_text(message):
     """
     Обрабатывает кнопки (сообщения) меню 'Изменить портфель'
     """
-    if message.text == 'Купил акции, добваить в портфель':
+    if message.text == 'Куплены акции, добваить в портфель':
         bot.send_message(message.chat.id, 'Введите через пробел код акции и купленное количество, например: SBER 200')
         bot.register_next_step_handler(message, stock_buy_add)
-    elif message.text == 'Продал акции, удалить из портфеля':
+    elif message.text == 'Проданы акции, удалить из портфеля':
         bot.send_message(message.chat.id, 'Введите через пробел код акции и проданное количество, например: GAZP 150')
         bot.register_next_step_handler(message, stock_sell_delete)
     elif message.text == 'Удалить портфель':
